@@ -8,6 +8,7 @@ const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 
 let indexRouter = require('./routes/index');
+let usersController = require('./controller/user');
 let taskController = require('./controller/tasks');
 let registerController = require('./controller/register');
 
@@ -103,6 +104,7 @@ app.use('/logout', (req, res, next) => {
   res.json(text);
 });
 app.use('/registers', registerController);
+app.use('/users', usersController);
 app.use('/tasks', taskController);
 
 // catch 404 and forward to error handler
