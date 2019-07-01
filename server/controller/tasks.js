@@ -1,55 +1,44 @@
 const express = require('express'),
-      low = require('lowdb'),
-      configDb = require('../config/db'),
-      router = express.Router(),
-      db = low(configDb.adapter);
-
-// db.defaults({
-//     posts: []
-//     })
-//     .write();
-
+    router = express.Router();
 
 router.get('/', getAll);
 
 async function getAll(req, res, next) {
-    let data =  await dbConnection['task'].findAll({
+    let data = await dbConnection['task'].findAll({
+        where: {
+            userId: req.user.id
+        },
         raw: true
-      });
-    res.json(data);
+    });
+    res.json({ posts: data });
 }
 
 router.post('/', async (req, res, next) => {
     console.log(req.body);
-    await dbConnection['task'].create(req.body)
+    await dbConnection['task'].create(Object.assign(req.body, {
+        userId: req.user.id
+    }));
     getAll(req, res, next);
 });
 
-router.put('/', function(req, res, next) {
-    console.log(req.body);
-    db.get('posts').find({
-        id: req.body.id
-    }).assign({
-        title: req.body.title,
-        content: req.body.content,
-        isDone: req.body.isDone
-    }).write();
-    res.json({
-        posts: db.get('posts').value()
+router.put('/', async function (req, res, next) {
+    await dbConnection['task'].update(req.body, {
+        where: {
+            id: req.body.id,
+            userId: req.user.id
+        }
     });
+    getAll(req, res, next);
 });
 
-router.delete('/', function(req, res, next) {
-    db.get('posts').remove({
-        id: req.body.id
-    }).write();
-    res.json({
-        posts: db.get('posts').value()
+router.delete('/', async function (req, res, next) {
+    await dbConnection['task'].destroy({
+        where: {
+            id: req.body.id,
+            userId: req.user.id
+        }
     });
+    getAll(req, res, next);
 });
-
-
-
-
 
 module.exports = router;
