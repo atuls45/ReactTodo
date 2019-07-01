@@ -9,7 +9,6 @@ const MemoryStore = require('memorystore')(session);
 
 let indexRouter = require('./routes/index');
 let taskController = require('./controller/tasks');
-let taskController = require('./controller/tasks');
 let registerController = require('./controller/register');
 
 const { initialise } = require('./config/sequelize');
@@ -85,9 +84,9 @@ app.all('*', function (req, res, next) {
     }
   }
 
-  if (!req.isAuthenticated() && isExcluded) {
+  if (!req.isAuthenticated() && !isExcluded) {
     req.logout();
-    return res.redirect('/login');
+    return res.json('Not Authorised');
   }
   return next();
 });
